@@ -1,0 +1,25 @@
+{
+  "apps": [
+    {
+      "name": "Jensun Web",
+      "script": "./server.js",
+      "env": {
+        "COMMON_VARIABLE": "true"
+      },
+      "env_production": {
+        "NODE_ENV": "production"
+      }
+    }
+  ],
+  "deploy": {
+    "production": {
+      "user": "root",
+      "host": "todine.uk",
+      "ref": "origin/master",
+      "repo": "git@github.com:jenshandersson/jensun-web.git",
+      "path": "/opt/jensun-web",
+      "post-deploy":
+        "yarn install && yarn build && pm2 startOrRestart ecosystem.json --env production"
+    }
+  }
+}

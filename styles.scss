@@ -1,0 +1,33 @@
+body {
+  font-size: 18px;
+  font-family: -apple-system, 'Helvetica Neue', sans-serif;
+  color: #333;
+  padding: 20px;
+  text-align: center;
+}
+
+h1 {
+  font-size: 50px;
+}
+p.lead {
+  font-size: 120%;
+}
+
+img {
+  max-width: 100%;
+}
+
+.header {
+  max-width: 600px;
+  margin: auto;
+}
+
+@media only screen and (max-width: 600px) {
+  h1 {
+    font-size: 30px;
+  } 
+  body {
+    padding: 10px;  
+    font-size: 14px;
+  }
+}

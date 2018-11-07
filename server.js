@@ -1,9 +1,11 @@
 const express = require("express");
 const next = require("next");
 const fetch = require("node-fetch");
+const cors = require("cors");
 const port = parseInt(process.env.PORT, 10) || 2000;
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
+
 const handle = app.getRequestHandler();
 
 var LRU = require("lru-cache"),
@@ -12,6 +14,7 @@ var LRU = require("lru-cache"),
 
 app.prepare().then(() => {
   const server = express();
+  server.use(cors());
 
   server.get("/editor/:id?", (req, res) => {
     return app.render(req, res, "/editor", { id: req.params.id });

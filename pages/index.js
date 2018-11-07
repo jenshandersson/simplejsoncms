@@ -1,8 +1,16 @@
 import React from "react";
+import Head from "next/head";
 import "../styles.scss";
 
 export default () => (
   <div className="header">
+    <Head>
+      <title>Super Simple JSON CMS</title>
+      <meta
+        name="description"
+        content="Edit JSON online and access it through our API, a simple but powerful CMS"
+      />
+    </Head>
     <h1>Super Simple JSON CMS</h1>
     <p className="lead">
       Edit JSON online and access it through our API, a simple but powerful CMS

@@ -35,10 +35,11 @@ export default class Editor extends React.Component {
 
   static async getInitialProps({ asPath, query }) {
     const { id } = query;
-    let json = defaultJson;
+    let json = {};
     let secured = false;
-    if (asPath === "/editor") {
-      json = {};
+    const isRoot = asPath === "/";
+    if (isRoot) {
+      json = defaultJson;
     }
     if (id) {
       const res = await fetch(baseUrl + "api/" + id, {
@@ -51,7 +52,7 @@ export default class Editor extends React.Component {
         secured = true;
       }
     }
-    return { id, json, secured };
+    return { id, json, secured, isRoot };
   }
 
   componentDidMount() {
@@ -83,6 +84,12 @@ export default class Editor extends React.Component {
     if (!_.isEqual(json, oldJson)) {
       this.editor.set(json);
       this.textEditor.set(json);
+    }
+    if (this.props.id !== nextProps.id) {
+      this.setState({
+        showText: false,
+        password: ""
+      });
     }
   }
 
@@ -122,7 +129,7 @@ export default class Editor extends React.Component {
 
   render() {
     const { showText, saving, error, password } = this.state;
-    const { id, secured } = this.props;
+    const { id, secured, isRoot } = this.props;
     const apiUrl = id && baseUrl + "api/" + id;
     return (
       <div>
@@ -131,20 +138,33 @@ export default class Editor extends React.Component {
           <meta key="og:title" property="og:title" content={title} />
         </Head>
         <h1>Super Simple JSON CMS</h1>
-        {apiUrl ? (
+        {apiUrl && (
           <div style={{ margin: 20 }}>
             Your API:{" "}
             <a target="_blank" href={apiUrl}>
               {apiUrl}
             </a>
           </div>
-        ) : (
-          <div>
-            <p className="lead" style={{ marginBottom: 40 }}>
+        )}
+        {isRoot ? (
+          <div style={{ marginBottom: 40 }}>
+            <p className="lead">
               Online JSON editor for non-devs, automatically exposed through our
               speedy API. Perfect for your simple site/app when you need the
               client to make changes (but don't need a full-fledged CMS like
               wordpress, squarespace etc).
+            </p>
+            Example API:{" "}
+            <a target="_blank" href="https://simplejsoncms.com/api/example">
+              https://simplejsoncms.com/api/example
+            </a>
+          </div>
+        ) : (
+          <div style={{ marginBottom: 40 }}>
+            <p className="lead">
+              Create your own JSON document and API below. Copy/paste in your
+              exising JSON document or use the editor from scratch. Press Save
+              when ready to publish.
             </p>
           </div>
         )}
@@ -162,9 +182,11 @@ export default class Editor extends React.Component {
         >
           {showText ? "Hide" : "Show"} text editor
         </button>
-        <Link href="/editor">
-          <a className="btn btn-primary">New</a>
-        </Link>
+        {(id || isRoot) && (
+          <Link href="/editor">
+            <a className="btn btn-primary">New document</a>
+          </Link>
+        )}
         {error && (
           <div>
             <p style={{ color: "tomato", fontWeight: "bold", margin: 20 }}>
@@ -195,6 +217,10 @@ export default class Editor extends React.Component {
           style={{ maxWidth: 800, margin: "auto", marginTop: 20 }}
           id="jsoneditor"
         />
+        <p style={{ marginTop: 60 }}>
+          Built by <a href="https://jenshandersson.com">Jens Andersson</a>.
+          Using <a href="https://github.com/josdejong/jsoneditor">jsoneditor</a>
+        </p>
       </div>
     );
   }

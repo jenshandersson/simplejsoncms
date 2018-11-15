@@ -5,6 +5,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const redis = require("redis");
 const asyncRedis = require("async-redis");
+const bcrypt = require("bcrypt");
 
 const port = parseInt(process.env.PORT, 10) || 2000;
 const dev = process.env.NODE_ENV !== "production";
@@ -37,15 +38,26 @@ app.prepare().then(() => {
   });
 
   server.use("/api/save", async (req, res) => {
-    const { json } = req.body;
+    const { json, password } = req.body;
     let { id } = req.body;
     if (!id) {
       id = Math.random()
         .toString(36)
         .substring(2, 15);
     }
-    if (id === "f87al12d83w") {
-      return res.status(401).json({ message: "Not authorized" });
+
+    const passHash = await redisClient.get("passwd-" + id);
+    if (passHash) {
+      if (!password || !bcrypt.compareSync(password, passHash)) {
+        return res.status(401).json({
+          error: password
+            ? "Not authorized, incorrect password"
+            : "Not authorized, password needed"
+        });
+      }
+    } else if (password) {
+      const hash = bcrypt.hashSync(password, 10);
+      await redisClient.set("passwd-" + id, hash);
     }
     await redisClient.set(id, JSON.stringify(json));
     return res.json({ id, json });
@@ -55,7 +67,12 @@ app.prepare().then(() => {
     const { id } = req.params;
     const cached = await redisClient.get(id);
     if (cached) {
-      return res.json(JSON.parse(cached));
+      const passHash = await redisClient.get("passwd-" + id);
+      const json = JSON.parse(cached);
+      if (passHash) {
+        res.set("x-protected", true);
+      }
+      return res.json(json);
     }
     if (id === "f87al12d83w") {
       const data = await fetch(
@@ -65,7 +82,7 @@ app.prepare().then(() => {
       return res.json(data);
     }
 
-    return res.status(404).json({ message: "Not found" });
+    return res.status(404).json({ error: "JSON not found" });
   });
 
   server.get("*", (req, res) => {

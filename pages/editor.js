@@ -28,21 +28,26 @@ export default class Editor extends React.Component {
     this.onChangeJson = this.onChangeJson.bind(this);
     this.onSave = this.onSave.bind(this);
     this.state = {
-      showText: false
+      showText: false,
+      password: ""
     };
   }
 
   static async getInitialProps({ asPath, query }) {
     const { id } = query;
     let json = defaultJson;
+    let secured = false;
     if (asPath === "/editor") {
       json = {};
     }
     if (id) {
       const res = await fetch(baseUrl + "api/" + id);
       json = await res.json();
+      if (res.headers.get("x-protected")) {
+        secured = true;
+      }
     }
-    return { id, json };
+    return { id, json, secured };
   }
 
   componentDidMount() {
@@ -92,24 +97,28 @@ export default class Editor extends React.Component {
 
   async onSave() {
     const { id } = this.props;
+    const { password } = this.state;
     const json = this.editor.get();
+    let error;
     this.setState({ saving: true });
     const result = await fetch("/api/save", {
       method: "POST",
       headers: {
         "Content-Type": "application/json; charset=utf-8"
       },
-      body: JSON.stringify({ id, json })
+      body: JSON.stringify({ id, json, password })
     }).then(r => r.json());
-    if (result && result.id) {
+    if (result && result.error) {
+      error = result.error;
+    } else if (result && result.id) {
       Router.replace(`/editor?id=${result.id}`, "/editor/" + result.id);
     }
-    this.setState({ saving: false });
+    this.setState({ saving: false, error });
   }
 
   render() {
-    const { showText, saving, error } = this.state;
-    const { id } = this.props;
+    const { showText, saving, error, password } = this.state;
+    const { id, secured } = this.props;
     const apiUrl = id && baseUrl + "api/" + id;
     return (
       <div>
@@ -127,7 +136,7 @@ export default class Editor extends React.Component {
           </div>
         ) : (
           <div>
-            <p className="lead" style={{ marginBottom: 60 }}>
+            <p className="lead" style={{ marginBottom: 40 }}>
               Online JSON editor for non-devs, automatically exposed through our
               speedy API. Perfect for your simple site/app when you need the
               client to make changes (but don't need a full-fledged CMS like
@@ -142,20 +151,31 @@ export default class Editor extends React.Component {
         >
           {saving ? "Saving..." : "Save"}
         </button>
-        <Link href="/editor">
-          <a className="btn btn-primary" style={{ marginRight: 10 }}>
-            New
-          </a>
-        </Link>
         <button
           className="btn"
+          style={{ marginRight: 10 }}
           onClick={() => this.setState({ showText: !showText })}
         >
           {showText ? "Hide" : "Show"} text editor
         </button>
+        <Link href="/editor">
+          <a className="btn btn-primary">New</a>
+        </Link>
         {error && (
           <div>
-            <p style={{ color: "tomato", fontWeight: "bold" }}>{error}</p>
+            <p style={{ color: "tomato", fontWeight: "bold", margin: 20 }}>
+              {error}
+            </p>
+          </div>
+        )}
+        {id && (
+          <div style={{ margin: 20 }}>
+            {secured ? "Password protected" : "Add a password"}:{" "}
+            <input
+              type="password"
+              value={password}
+              onChange={e => this.setState({ password: e.target.value })}
+            />
           </div>
         )}
         <div

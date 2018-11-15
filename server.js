@@ -59,6 +59,7 @@ app.prepare().then(() => {
       const hash = bcrypt.hashSync(password, 10);
       await redisClient.set("passwd-" + id, hash);
     }
+    await redisClient.incr("save-" + id);
     await redisClient.set(id, JSON.stringify(json));
     return res.json({ id, json });
   });
@@ -71,6 +72,9 @@ app.prepare().then(() => {
       const json = JSON.parse(cached);
       if (passHash) {
         res.set("x-protected", true);
+      }
+      if (!req.headers["x-skip-incr"]) {
+        await redisClient.incr("get-" + id);
       }
       return res.json(json);
     }

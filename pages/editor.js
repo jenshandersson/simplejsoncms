@@ -41,7 +41,11 @@ export default class Editor extends React.Component {
       json = {};
     }
     if (id) {
-      const res = await fetch(baseUrl + "api/" + id);
+      const res = await fetch(baseUrl + "api/" + id, {
+        headers: {
+          "x-skip-incr": true
+        }
+      });
       json = await res.json();
       if (res.headers.get("x-protected")) {
         secured = true;

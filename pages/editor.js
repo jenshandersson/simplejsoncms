@@ -22,6 +22,14 @@ const baseUrl = isProd
   ? "https://simplejsoncms.com/"
   : "http://localhost:2000/";
 
+Router.onRouteChangeComplete = url => {
+  setTimeout(() => {
+    window.gtag("config", "UA-43929520-5", {
+      page_location: url
+    });
+  }, 50);
+};
+
 export default class Editor extends React.Component {
   constructor(props) {
     super(props);

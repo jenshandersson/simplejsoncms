@@ -31,6 +31,20 @@ export default class MyDocument extends Document {
             rel="stylesheet"
             href="https://unpkg.com/spectre.css/dist/spectre.min.css"
           />
+          <script
+            async
+            src={`https://www.googletagmanager.com/gtag/js?id=UA-43929520-5`}
+          />
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'UA-43929520-5');
+          `
+            }}
+          />
         </Head>
         <body>
           <Main />

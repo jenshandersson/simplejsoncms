@@ -7,7 +7,7 @@ const redis = require("redis");
 const asyncRedis = require("async-redis");
 const bcrypt = require("bcrypt");
 
-const port = parseInt(process.env.PORT, 10) || 2000;
+const port = 2000;
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
 

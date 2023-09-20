@@ -1,5 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { kv } from "@vercel/kv";
+import Redis from "ioredis";
+
+const kv = new Redis(process.env.KV_URL as string);
 
 export default async function handler(
   req: NextApiRequest,
@@ -8,7 +10,7 @@ export default async function handler(
   const { query } = req;
   const { id } = query;
 
-  const data = await kv.get<string>(`document-${id}`);
+  const data = await kv.get(`document-${id}`);
   console.log({ data });
 
   if (data) {

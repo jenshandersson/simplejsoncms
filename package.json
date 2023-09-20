@@ -9,6 +9,7 @@
   "dependencies": {
     "@vercel/kv": "^0.2.2",
     "bcrypt": "^5.0.0",
+    "ioredis": "^5.3.2",
     "jsoneditor": "^5.25.0",
     "lodash": "^4.17.11",
     "next": "^13.0.0",

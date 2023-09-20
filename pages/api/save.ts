@@ -1,6 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { kv } from "@vercel/kv";
+import Redis from "ioredis";
 import bcrypt from "bcrypt";
+
+const kv = new Redis(process.env.KV_URL as string);
 
 export default async function handler(
   req: NextApiRequest,
@@ -12,7 +14,7 @@ export default async function handler(
     id = Math.random().toString(36).substring(2, 15);
   }
   const key = `document-${id}`;
-  const passHash = await kv.get<string>("passwd-" + id);
+  const passHash = await kv.get("passwd-" + id);
   if (passHash) {
     if (!password || !bcrypt.compareSync(password, passHash)) {
       return res.status(401).json({

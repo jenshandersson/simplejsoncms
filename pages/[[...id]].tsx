@@ -40,7 +40,6 @@ export default function Editor(props: any) {
 
   useEffect(() => {
     const JSONEditor = require("jsoneditor");
-    console.log(JSONEditor);
     const container = document.getElementById("jsoneditor");
     const textContainer = document.getElementById("texteditor");
     if (!container) {
@@ -114,6 +113,7 @@ export default function Editor(props: any) {
 
   const { showText, saving, error, password } = state;
   const { id, secured, isRoot } = props;
+  console.log({ id }, "asd");
   const apiUrl = id && baseUrl + "/api/" + id;
   return (
     <div>
@@ -209,10 +209,7 @@ export default function Editor(props: any) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async ({
-  res,
-  params,
-}) => {
+export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const id = params?.id ? params.id[0] : null;
   let json = {};
   let secured = false;

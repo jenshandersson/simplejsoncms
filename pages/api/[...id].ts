@@ -18,7 +18,7 @@ export default async function handler(
     if (passHash) {
       res.setHeader("x-protected", "true");
     }
-    return res.status(200).json(data);
+    return res.status(200).json(JSON.parse(data));
   }
   res.status(404).json({ status: "not found" });
 }
